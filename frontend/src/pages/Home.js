@@ -5,15 +5,24 @@ const Home = () => {
   const [searchCriteria, setSearchCriteria] = useState({ source: '', destination: '', date: '', budget: '' });
   const [results, setResults] = useState([]);
 
-  // Mock API call to Java Backend
-  const handleSearch = (e) => {
+  const handleSearch = async (e) => {
     e.preventDefault();
-    // Simulate fetching from backend: GET /api/services?source=...
-    setResults([
-      { id: 1, type: 'Flight', title: 'AeroAir Flight 101', price: 299, availability: 12, icon: 'bi-airplane' },
-      { id: 2, type: 'Hotel', title: 'Grand Plaza Hotel', price: 150, availability: 5, icon: 'bi-building' },
-      { id: 3, type: 'TourPackage', title: 'City Highlights Tour', price: 89, availability: 20, icon: 'bi-map' }
-    ]);
+    try {
+      const params = new URLSearchParams(searchCriteria);
+      const response = await fetch(`/api/services?${params}`);
+      const data = await response.json();
+      setResults(data.map(s => ({
+        id: s.id,
+        type: s.type,
+        title: s.name,
+        price: s.price,
+        availability: s.availability,
+        icon: s.type === 'Flight' ? 'bi-airplane' : s.type === 'Hotel' ? 'bi-building' : 'bi-map'
+      })));
+    } catch (error) {
+      alert('Error fetching services');
+      console.error(error);
+    }
   };
 
   return (

@@ -3,9 +3,21 @@ import React, { useState } from 'react';
 const ServiceCard = ({ service }) => {
   const [isHovered, setIsHovered] = useState(false);
 
-  const handleBook = () => {
-    const confirm = window.confirm(`Proceed to payment for ${service.title} ($${service.price})?`);
-    if(confirm) alert("Payment successful! Notification sent. Booking confirmed.");
+  const handleBook = async () => {
+    try {
+      const response = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ serviceId: service.id })
+      });
+      if (response.ok) {
+        alert("Payment successful! Notification sent. Booking confirmed.");
+        // Refresh home results
+        window.location.reload();
+      }
+    } catch (error) {
+      alert('Booking failed');
+    }
   };
 
   const styles = {

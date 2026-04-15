@@ -1,17 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const UserDashboard = () => {
-  const [bookings, setBookings] = useState([
-    { id: 'BKG-9921', service: 'Grand Plaza Hotel', date: '2026-05-12', amount: 150, status: 'Confirmed' },
-    { id: 'BKG-9922', service: 'AeroAir Flight 101', date: '2026-06-01', amount: 299, status: 'Confirmed' }
-  ]);
+  const [bookings, setBookings] = useState([]);
 
-  const handleCancel = (id) => {
-    const updatedBookings = bookings.map(bkg => 
-      bkg.id === id ? { ...bkg, status: 'Cancelled (Refund Pending)' } : bkg
-    );
-    setBookings(updatedBookings);
-    alert(`Cancellation requested for ${id}. Notification sent.`);
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        const response = await fetch('/api/bookings');
+        const data = await response.json();
+        setBookings(data);
+      } catch (error) {
+        console.error('Error fetching bookings');
+      }
+    };
+    fetchBookings();
+  }, []);
+
+  const handleCancel = async (id) => {
+    try {
+      await fetch(`/api/bookings/${id}/cancel`, { method: 'PUT' });
+      setBookings(bookings.map(bkg => bkg.id === id ? { ...bkg, status: 'CANCELLED' } : bkg));
+      alert(`Cancellation requested for ${id}. Notification sent.`);
+    } catch (error) {
+      alert('Error cancelling booking');
+    }
   };
 
   const styles = {

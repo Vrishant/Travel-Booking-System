@@ -1,28 +1,34 @@
 import React, { useState, useEffect } from 'react';
+import api from '../services/api';
 
 const UserDashboard = () => {
   const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const response = await fetch('/api/bookings');
-        const data = await response.json();
+        const response = await api.get('/bookings');
+        const data = response.data;
         setBookings(data);
       } catch (error) {
-        console.error('Error fetching bookings');
+        console.error('Error fetching bookings:', error);
+        alert('Failed to load bookings');
+      } finally {
+        setLoading(false);
       }
     };
     fetchBookings();
   }, []);
 
-  const handleCancel = async (id) => {
+    const handleCancel = async (id) => {
     try {
-      await fetch(`/api/bookings/${id}/cancel`, { method: 'PUT' });
+      await api.put(`/bookings/${id}/cancel`);
       setBookings(bookings.map(bkg => bkg.id === id ? { ...bkg, status: 'CANCELLED' } : bkg));
       alert(`Cancellation requested for ${id}. Notification sent.`);
     } catch (error) {
-      alert('Error cancelling booking');
+      alert('Error cancelling booking: ' + error.message);
+      console.error(error);
     }
   };
 

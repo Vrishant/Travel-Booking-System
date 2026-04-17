@@ -1,31 +1,45 @@
 package com.travel.bookingapp.controllers;
 
 import com.travel.bookingapp.entities.Booking;
-import com.travel.bookingapp.entities.User;
 import com.travel.bookingapp.entities.Payment;
-import com.travel.bookingapp.interfaces.PaymentMethod;
-import com.travel.bookingapp.services.TravelService;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/bookings")
 public class BookingController {
-    
-    public Booking createBooking(User user, TravelService service) {
-        return user.bookService(service);
+
+    @PostMapping
+    public Booking createBooking(@RequestBody Booking bookingRequest) {
+        // TODO: Save booking to DB later
+        return bookingRequest;
     }
 
-    public boolean processPayment(Booking booking, PaymentMethod method) {
-        Payment payment = new Payment();
-        // Set payment details based on booking...
-        boolean success = payment.processPayment(method);
-        
-        if (success) {
-            booking.confirmBooking();
-            // Trigger Notification here
-        }
-        return success;
+    @GetMapping
+    public List<Booking> getAllBookings() {
+        // TODO: Fetch from DB
+        return new ArrayList<>();
     }
 
-    public void cancelBooking(Booking booking) {
+    @GetMapping("/{id}")
+    public Booking getBooking(@PathVariable Long id) {
+        // TODO: Fetch from DB
+        return new Booking(); // ✅ works now (default constructor added)
+    }
+
+    @PutMapping("/{id}/cancel")
+    public Booking cancelBooking(@PathVariable Long id) {
+        // TODO: Fetch booking from DB instead
+        Booking booking = new Booking();
         booking.cancelBooking();
-        // Trigger refund processing and notification here
+        return booking;
+    }
+
+    @PostMapping("/{id}/payment")
+    public boolean processPayment(@PathVariable Long id, @RequestBody Payment paymentRequest) {
+        // TODO: Implement payment logic
+        return true;
     }
 }

@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import ServiceCard from '../components/ServiceCard';
+import api from '../services/api';
 
 const Home = () => {
   const [searchCriteria, setSearchCriteria] = useState({ source: '', destination: '', date: '', budget: '' });
   const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const handleSearch = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      const params = new URLSearchParams(searchCriteria);
-      const response = await fetch(`/api/services?${params}`);
-      const data = await response.json();
+      const response = await api.get('/services', { params: searchCriteria });
+      const data = response.data;
       setResults(data.map(s => ({
         id: s.id,
         type: s.type,
@@ -20,8 +22,10 @@ const Home = () => {
         icon: s.type === 'Flight' ? 'bi-airplane' : s.type === 'Hotel' ? 'bi-building' : 'bi-map'
       })));
     } catch (error) {
-      alert('Error fetching services');
+      alert('Error fetching services: ' + error.message);
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
